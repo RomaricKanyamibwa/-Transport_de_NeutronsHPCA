@@ -1,6 +1,6 @@
 SRCS = neutron-para.cu
 EXE_NAME = neutron-para
-LIB=-lm -L/usr/local/cuda/lib64/ -lcuda -lcudart
+LIB=-lm -L/usr/local/cuda/lib64/ -lcuda -lcudart -lcurand
 NVCC=nvcc 
 
 ifeq ($(DEBUGGING), y)
@@ -13,7 +13,7 @@ endif
 all: ${EXE_NAME}
 
 % : %.cu
-	$(NVCC) $< -o $@ $(OBJECTS) $(LIBS)
+	$(NVCC) $< -o $@ $(OBJECTS) $(LIB) -g
 
 clean:
 	rm -f ${EXE_NAME} *.o *~
