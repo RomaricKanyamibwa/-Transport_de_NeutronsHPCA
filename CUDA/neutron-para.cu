@@ -61,35 +61,42 @@ __global__ void setup_kernel(curandState *state)
 }
 
 __global__ void neutron_calculus(curandState *state, float c, float c_c, float h, float* absorbed, int* result, int n){
-    int pos_Thread = threadIdx.x + blockIdx.x*blockDim.x;
+    int id = threadIdx.x + blockIdx.x*blockDim.x;
+    int pos_Thread = id;
+    int r = 0, b = 0, t = 0;
     float L;
     float u;
-    float d = 0.0;
-    float x = 0.0;
+    float d;
+    float x;
     while(pos_Thread < n) {
-	    while (1) {
+	      d = 0.0;
+              x = 0.0;
+              while (1) {
 	      //result[2]=5;
-	      u = curand_uniform (&state[pos_Thread%(gridDim.x*blockDim.x)]);
+	      u = curand_uniform (&state[id]);
 	      L = -(1 / c) * log(u);
 	      x = x + L * cos(d);
 	      if (x < 0) {
-		atomicAdd(result,1);
+		r = r+1;
 		break;
 	      } else if (x >= h) {
-		atomicAdd(result+1,1);
+		b=b+1;
 		break;
-	      } else if ((u = curand_uniform (&state[pos_Thread%blockDim.x])) < c_c / c) {
-		atomicAdd(result+2,1);
+	      } else if ((u = curand_uniform (&state[id])) < c_c / c) {
+		t=t+1;
 	
 		absorbed[pos_Thread] = x;
 		break;
 	      } else {
-		u = curand_uniform (state + pos_Thread);
+		u = curand_uniform (&state[id]);
 		d = u * M_PI;
 	      }
 	    }
 	pos_Thread = pos_Thread + gridDim.x*blockDim.x;
 	}
+	atomicAdd(result,r);
+	atomicAdd(result+1,b);
+	atomicAdd(result+2,t);
 }
 /*
  * main()
