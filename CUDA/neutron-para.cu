@@ -12,8 +12,11 @@
 #include <cuda.h>
 #include <curand.h>
 #include <curand_kernel.h>
+#include "device_launch_parameters.h"
+#include "device_atomic_functions.h"
 
 #define OUTPUT_FILE "/tmp/absorbed.dat"
+#define THREAD_PER_BLOCK 256 
 
 char info[] = "\
 Usage:\n\
@@ -55,15 +58,19 @@ double my_gettimeofday(){
 __global__ void setup_kernel(curandState *state)
 {
     int id = threadIdx.x + blockIdx.x*gridDim.x;
-    /* Each thread gets same seed, a different sequence 
-       number, no offset */
-    curand_init(1234, id, 0, &state[id]);
+    curand_init(16453, id, 0, &state[id]);
 }
 
 __global__ void neutron_calculus(curandState *state, float c, float c_c, float h, float* absorbed, int* result, int n){
     int id = threadIdx.x + blockIdx.x*blockDim.x;
     int pos_Thread = id;
-    int r = 0, b = 0, t = 0;
+    int rt = 0, bt = 0, tt = 0;
+    __shared__ int r[THREAD_PER_BLOCK];
+    __shared__ int b[THREAD_PER_BLOCK];
+    __shared__ int t[THREAD_PER_BLOCK];
+    r[threadIdx.x] = 0;
+    b[threadIdx.x] = 0;
+    t[threadIdx.x] = 0;
     float L;
     float u;
     float d;
@@ -77,13 +84,13 @@ __global__ void neutron_calculus(curandState *state, float c, float c_c, float h
 	      L = -(1 / c) * log(u);
 	      x = x + L * cos(d);
 	      if (x < 0) {
-		r = r+1;
+		r[threadIdx.x] = r[threadIdx.x]+1;
 		break;
 	      } else if (x >= h) {
-		b=b+1;
+		b[threadIdx.x] = b[threadIdx.x]+1;
 		break;
 	      } else if ((u = curand_uniform (&state[id])) < c_c / c) {
-		t=t+1;
+		t[threadIdx.x] = t[threadIdx.x]+1;
 	
 		absorbed[pos_Thread] = x;
 		break;
@@ -94,9 +101,17 @@ __global__ void neutron_calculus(curandState *state, float c, float c_c, float h
 	    }
 	pos_Thread = pos_Thread + gridDim.x*blockDim.x;
 	}
-	atomicAdd(result,r);
-	atomicAdd(result+1,b);
-	atomicAdd(result+2,t);
+	__syncthreads();
+	if(threadIdx.x==0){
+		for(int i=0;i<blockDim.x;i++){
+			rt = rt + r[i];
+			bt = bt + b[i];
+			tt = tt + t[i]; 
+		}
+		atomicAdd(result,rt);
+		atomicAdd(result+1,bt);
+		atomicAdd(result+2,tt);
+	}
 }
 /*
  * main()
