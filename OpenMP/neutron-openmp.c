@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
   start = my_gettimeofday();
     
   init_uniform_random_number();
-  #pragma omp parallel for private(x, d) reduction(+ : r, + : t, + : d) schedule(dynamic)
+  #pragma omp parallel for private(x, d) reduction(+:r,t,b) schedule(dynamic)
   for (i = 0; i < n; i++) {
     d = 0.0;
     x = 0.0;

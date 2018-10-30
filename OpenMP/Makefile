@@ -1,8 +1,8 @@
-SRCS = neutron-seq.c
-EXE_NAME = neutron-seq
+SRCS = neutron-openmp.c
+EXE_NAME = neutron-openmp
 
 CC = gcc
-CFLAGS = -Wall -O3 # -std=c11
+CFLAGS = -Werror -Wall -O3 -ffast-math -mavx -ftree-vectorize -march=native -funroll-loops# -std=c11
 LIBS = -lm -fopenmp
 
 all: ${EXE_NAME}
