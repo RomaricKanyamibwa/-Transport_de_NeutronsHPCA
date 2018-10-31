@@ -35,7 +35,7 @@ void init_uniform_random_number() {
 }
 
 float uniform_random_number() {
-  double res = 0.0; 
+  double res = 0.0;
   drand48_r(&alea_buffer,&res);
   return res;
 }
@@ -53,8 +53,8 @@ double my_gettimeofday(){
  * main()
  */
 int main(int argc, char *argv[]) {
-  // La distance moyenne entre les interactions neutron/atome est 1/c. 
-  // c_c et c_s sont les composantes absorbantes et diffusantes de c. 
+  // La distance moyenne entre les interactions neutron/atome est 1/c.
+  // c_c et c_s sont les composantes absorbantes et diffusantes de c.
   float c, c_c, c_s;
   // épaisseur de la plaque
   float h;
@@ -72,7 +72,11 @@ int main(int argc, char *argv[]) {
   int r, b, t;
   // chronometrage
   double start, finish;
-  int i, j = 0; // compteurs 
+  int i, j = 0; // compteurs
+
+  //openmp variables
+//  int tid = omp_get_thread_num();
+//  int nthreads = omp_get_num_threads();
 
   if( argc == 1)
     fprintf( stderr, "%s\n", info);
@@ -107,34 +111,37 @@ int main(int argc, char *argv[]) {
 
   // debut du chronometrage
   start = my_gettimeofday();
-    
+
   init_uniform_random_number();
-  #pragma omp parallel for private(x, d) reduction(+:r,t,b) schedule(dynamic)
-  for (i = 0; i < n; i++) {
-    d = 0.0;
-    x = 0.0;
+  //#pragma omp parallel private(x, d)
+  {
+      #pragma omp parallel for private(x, d,u,L) reduction(+:r,t,b,j) schedule(dynamic)
+      for (i = 0; i < n; i++) {
+        d = 0.0;
+        x = 0.0;
 
-    while (1) {
+        while (1) {
 
-      u = uniform_random_number();
-      L = -(1 / c) * log(u);
-      x = x + L * cos(d);
-      if (x < 0) {
-	r++;
-	break;
-      } else if (x >= h) {
-	t++;
-	break;
-      } else if ((u = uniform_random_number()) < c_c / c) {
-	b++;
-	absorbed[j++] = x;
-	break;
-      } else {
-	u = uniform_random_number();
-	d = u * M_PI;
-      }
+          u = uniform_random_number();
+          L = -(1 / c) * log(u);
+          x = x + L * cos(d);
+          if (x < 0) {
+        r++;
+        break;
+          } else if (x >= h) {
+        t++;
+        break;
+          } else if ((u = uniform_random_number()) < c_c / c) {
+        b++;
+        absorbed[j++] = x;
+        break;
+          } else {
+        u = uniform_random_number();
+        d = u * M_PI;
+          }
+        }
     }
-  }
+}
 
   // fin du chronometrage
   finish = my_gettimeofday();
@@ -158,7 +165,7 @@ int main(int argc, char *argv[]) {
 
   // fermeture du fichier
   fclose(f_handle);
-  printf("Result written in " OUTPUT_FILE "\n"); 
+  printf("Result written in " OUTPUT_FILE "\n");
 
   free(absorbed);
 
