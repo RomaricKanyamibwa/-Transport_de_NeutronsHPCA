@@ -10,7 +10,7 @@
 #include <time.h>
 #include <sys/time.h>
 
-#define OUTPUT_FILE "/tmp/absorbed.dat"
+#define OUTPUT_FILE "/tmp/romhar/absorbed.dat"
 
 char info[] = "\
 Usage:\n\
@@ -33,6 +33,11 @@ struct drand48_data alea_buffer;
 void init_uniform_random_number() {
   srand48_r(0, &alea_buffer);
 }
+
+void init_uniform_random_number_thread(int thread) {
+  srand48_r(thread, &alea_buffer);
+}
+
 
 float uniform_random_number() {
   double res = 0.0;
@@ -115,7 +120,7 @@ int main(int argc, char *argv[]) {
   init_uniform_random_number();
   //#pragma omp parallel private(x, d)
   {
-      #pragma omp parallel for private(x, d,u,L) reduction(+:r,t,b,j) schedule(dynamic)
+      #pragma omp parallel for private(x, d,u,L) reduction(+:r,t,b) schedule(dynamic)
       for (i = 0; i < n; i++) {
         d = 0.0;
         x = 0.0;
@@ -133,7 +138,11 @@ int main(int argc, char *argv[]) {
         break;
           } else if ((u = uniform_random_number()) < c_c / c) {
         b++;
-        absorbed[j++] = x;
+	#pragma omp critical
+	{
+	j++;
+        absorbed[j] = x;
+	}
         break;
           } else {
         u = uniform_random_number();
