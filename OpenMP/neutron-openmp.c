@@ -9,6 +9,7 @@
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+#include <omp.h>
 
 #define OUTPUT_FILE "/tmp/romhar/absorbed.dat"
 
@@ -116,11 +117,10 @@ int main(int argc, char *argv[]) {
 
   // debut du chronometrage
   start = my_gettimeofday();
-
-  init_uniform_random_number();
-  //#pragma omp parallel private(x, d)
-  {
-      #pragma omp parallel for private(x, d,u,L) reduction(+:r,t,b) schedule(dynamic)
+      #pragma omp parallel private(x, d,u,L) reduction(+:r,t,b)
+      {
+      init_uniform_random_number_thread(omp_get_thread_num());
+      #pragma omp for schedule(dynamic)
       for (i = 0; i < n; i++) {
         d = 0.0;
         x = 0.0;
@@ -150,6 +150,7 @@ int main(int argc, char *argv[]) {
           }
         }
     }
+
 }
 
   // fin du chronometrage
