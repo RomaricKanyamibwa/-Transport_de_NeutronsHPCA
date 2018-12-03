@@ -8,9 +8,10 @@
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 #include <sys/time.h>
 
-#define OUTPUT_FILE "/tmp/absorbed.dat"
+#define OUTPUT_FILE "/tmp/romhar/absorbed.dat"
 
 char info[] = "\
 Usage:\n\
@@ -73,6 +74,10 @@ int main(int argc, char *argv[]) {
   // chronometrage
   double start, finish;
   int i, j = 0; // compteurs 
+
+  FILE *perf = fopen("perform.txt", "a+");
+  FILE *perf_gnuplot = fopen("perform_gnuplot.txt", "a+");
+  char str[512];
 
   if( argc == 1)
     fprintf( stderr, "%s\n", info);
@@ -145,6 +150,14 @@ int main(int argc, char *argv[]) {
   printf("\nTemps total de calcul: %.8g sec\n", finish - start);
   printf("Millions de neutrons /s: %.2g\n", (double) n / ((finish - start)*1e6));
 
+  sprintf(str,"***************Seq N:%d ***************\n\
+  #Temps total de calcul : %.8g seconde(s)\n\n"
+            ,n,finish-start);
+
+  fwrite(str,sizeof(char),strlen(str),perf);
+  sprintf(str,"%d %.8g %d %d \n",n,finish-start,0,0);
+  fwrite(str,sizeof(char),strlen(str),perf_gnuplot);
+
   // ouverture du fichier pour ecrire les positions des neutrons absorbés
   FILE *f_handle = fopen(OUTPUT_FILE, "w");
   if (!f_handle) {
@@ -157,9 +170,12 @@ int main(int argc, char *argv[]) {
 
   // fermeture du fichier
   fclose(f_handle);
-  printf("Result written in " OUTPUT_FILE "\n"); 
+  printf("Result written in " OUTPUT_FILE "\n\n"); 
 
   free(absorbed);
+  fclose(perf);
+  fclose(perf_gnuplot);
+  fclose(f_handle);
 
   return EXIT_SUCCESS;
 }

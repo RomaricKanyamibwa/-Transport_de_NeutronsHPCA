@@ -9,6 +9,7 @@
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+#include <string.h>
 #include <cuda.h>
 #include <curand.h>
 #include <curand_kernel.h>
@@ -16,7 +17,8 @@
 #include "device_atomic_functions.h"
 
 #define OUTPUT_FILE "/tmp/romhar/absorbed.dat"
-#define THREAD_PER_BLOCK 256 
+#define THREAD_PER_BLOCK 512 
+#define NB_BLOCKS 256
 
 char info[] = "\
 Usage:\n\
@@ -160,12 +162,18 @@ int main(int argc, char *argv[]) {
   double start, finish;
   int i, j = 0; // compteurs 
 
+  //perf files
+  FILE *perf = fopen("../perform.txt", "a+");
+  FILE *perf_gnuplot = fopen("../perform_gnuplot.txt", "a+");
+  char str[512];
+  //char tmp[128];
+
   if( argc == 1)
     fprintf( stderr, "%s\n", info);
 
   // valeurs par defaut
   h = 1.0;
-  n = 50000;
+  n = 500000000;
   c_c = 0.5;
   c_s = 0.5;
 
@@ -185,13 +193,13 @@ int main(int argc, char *argv[]) {
   printf("Nombre d'échantillons  : %d\n", n);
   printf("C_c : %g\n", c_c);
   printf("C_s : %g\n", c_s);
-
+  printf("Thread per block : %d\n",THREAD_PER_BLOCK);
 
   float *absorbed;
   absorbed = (float *) calloc(n, sizeof(float));
-  int nb_thread = 256;
+  int nb_thread = THREAD_PER_BLOCK;
   dim3 threadsParBloc(nb_thread,1,1);
-  dim3 nbBlocks(256,1,1);
+  dim3 nbBlocks(NB_BLOCKS,1,1);
   float* absorbed_gpu;
   int* result_gpu;
   int* c_abs;
@@ -210,7 +218,14 @@ int main(int argc, char *argv[]) {
   cudaMemcpy(result, result_gpu, 3*sizeof(int),cudaMemcpyDeviceToHost);
   finish = my_gettimeofday();
   printf("\nTemps total de calcul: %.8g sec\n", finish - start);
+  sprintf(str,"***************Cuda N:%d ***************\n\
+Nb_thread:%d , Nb_Blocs:%d \n\
+#Temps total de calcul : %.8g seconde(s)\n\n"
+            ,n,THREAD_PER_BLOCK,NB_BLOCKS,finish-start);
 
+fwrite(str,sizeof(char),strlen(str),perf);
+sprintf(str,"%d %.8g %d %d \n",n,finish-start,THREAD_PER_BLOCK,NB_BLOCKS);
+fwrite(str,sizeof(char),strlen(str),perf_gnuplot);
   /*
   // debut du chronometrage
   start = my_gettimeofday();
@@ -256,7 +271,7 @@ int main(int argc, char *argv[]) {
   printf("Millions de neutrons /s: %.2g\n", (double) n / ((finish - start)*1e6));
 
   // ouverture du fichier pour ecrire les positions des neutrons absorbés
-  FILE *f_handle = fopen(OUTPUT_FILE, "w");
+  FILE *f_handle = fopen(OUTPUT_FILE, "w+");
   if (!f_handle) {
     fprintf(stderr, "Cannot open " OUTPUT_FILE "\n");
     exit(EXIT_FAILURE);
@@ -267,9 +282,12 @@ int main(int argc, char *argv[]) {
 
   // fermeture du fichier
   fclose(f_handle);
-  printf("Result written in " OUTPUT_FILE "\n"); 
+  printf("Result written in " OUTPUT_FILE "\n\n "); 
 
   free(absorbed);
+  fclose(perf);
+  fclose(perf_gnuplot);
+  fclose(f_handle);
 
   return EXIT_SUCCESS;
 }
