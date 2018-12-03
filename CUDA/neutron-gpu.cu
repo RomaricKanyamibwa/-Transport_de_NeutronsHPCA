@@ -17,7 +17,7 @@
 #include "device_atomic_functions.h"
 
 #define OUTPUT_FILE "/tmp/romhar/absorbed.dat"
-#define THREAD_PER_BLOCK 512 
+#define THREAD_PER_BLOCK 256 
 #define NB_BLOCKS 256
 
 char info[] = "\
