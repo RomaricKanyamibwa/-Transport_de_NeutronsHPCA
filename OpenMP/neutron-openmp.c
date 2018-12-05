@@ -86,8 +86,9 @@ int main(int argc, char *argv[]) {
   char str[512];
 
   //openmp variables
-//  int tid = omp_get_thread_num();
-  int nthreads = omp_get_num_threads();
+  int tid = -1;//omp_get_thread_num();
+  int nthreads=-1;
+
 
   if( argc == 1)
     fprintf( stderr, "%s\n", info);
@@ -115,7 +116,7 @@ int main(int argc, char *argv[]) {
   printf("Nombre d'échantillons  : %d\n", n);
   printf("C_c : %g\n", c_c);
   printf("C_s : %g\n", c_s);
-  printf("Number of Threads : %d\n",nthreads );
+
 
 
   float *absorbed;
@@ -125,7 +126,11 @@ int main(int argc, char *argv[]) {
   start = my_gettimeofday();
       #pragma omp parallel private(x, d,u,L) reduction(+:r,t,b)
       {
-      init_uniform_random_number_thread(omp_get_thread_num());
+      nthreads = omp_get_num_threads();
+      tid=omp_get_thread_num();
+      if(tid==0)
+        printf("Number of Threads : %d\n",nthreads );
+      init_uniform_random_number_thread(tid);
       #pragma omp for schedule(dynamic)
       for (i = 0; i < n; i++) {
         d = 0.0;
@@ -172,10 +177,10 @@ int main(int argc, char *argv[]) {
   //creation/ecriture des fichiers de benchmarking
   sprintf(str,"***************OpenMP N:%d Threads:%d***************\n\
   #Temps total de calcul : %.8g seconde(s)\n\n"
-            ,n,omp_get_num_threads(),finish-start);
+            ,n,nthreads,finish-start);
 
   fwrite(str,sizeof(char),strlen(str),perf);
-  sprintf(str,"%d %.8g %d %d \n",n,finish-start,omp_get_num_threads(),0);
+  sprintf(str,"%d %.8g %d %d \n",n,finish-start,nthreads,0);
   fwrite(str,sizeof(char),strlen(str),perf_gnuplot);
 
   // ouverture du fichier pour ecrire les positions des neutrons absorbés
