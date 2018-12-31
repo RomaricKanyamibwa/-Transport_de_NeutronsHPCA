@@ -180,19 +180,26 @@ int main(int argc, char *argv[]) {
   start = my_gettimeofday();
   cudaMalloc(&d_state, nb_thread*nbBlocks.x*sizeof(curandState));
   cudaMalloc(&absorbed_gpu, n*sizeof(float));
-  cudaMemset(absorbed_gpu,0.0,n*sizeof(float));
   cudaMalloc(&result_gpu, 3*sizeof(int));
   cudaMalloc(&c_abs, sizeof(int));
   cudaMemset(c_abs,0,sizeof(int));
   cudaMemset(result_gpu,0,3*sizeof(int));
+
+	#pragma omp parallel
+	{
+		nthreads = omp_get_num_threads();
+		tid=omp_get_thread_num();
+		cudaMemset(absorbed_gpu+tid*n/nthreads,0.0,n*sizeof(float)/nthreads);
+	}
   setup_kernel<<<nbBlocks, threadsParBloc >>>(d_state);
   neutron_calculus<<<nbBlocks, threadsParBloc >>>(d_state, c, c_c, h, absorbed_gpu, result_gpu, n, c_abs);
 	#pragma omp parallel
 	{
-  nthreads = omp_get_num_threads();
-	tid=omp_get_thread_num();
-  cudaMemcpy(absorbed+tid*n/nthreads, absorbed_gpu+tid*n/nthreads, n*sizeof(float)/nthreads,cudaMemcpyDeviceToHost);
+		nthreads = omp_get_num_threads();
+		tid=omp_get_thread_num();
+		cudaMemcpy(absorbed+tid*n/nthreads, absorbed_gpu+tid*n/nthreads, n*sizeof(float)/nthreads,cudaMemcpyDeviceToHost);
 	}
+
 	cudaMemcpy(result, result_gpu, 3*sizeof(int),cudaMemcpyDeviceToHost);
   finish = my_gettimeofday();
 

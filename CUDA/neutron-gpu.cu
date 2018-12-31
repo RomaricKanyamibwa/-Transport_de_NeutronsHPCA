@@ -67,7 +67,6 @@ __global__ void neutron_calculus(curandState *state, float c, float c_c, float h
     int id = threadIdx.x + blockIdx.x*blockDim.x;
     int pos_ecrit;
     int pos_Thread = id;
-    int rt = 0, bt = 0, tt = 0;
     __shared__ int r[THREAD_PER_BLOCK];
     __shared__ int b[THREAD_PER_BLOCK];
     __shared__ int t[THREAD_PER_BLOCK];
@@ -122,18 +121,6 @@ __global__ void neutron_calculus(curandState *state, float c, float c_c, float h
 		atomicAdd(result+1,t[0]);
 		atomicAdd(result+2,b[0]);
 	}
-	/*
-	if(threadIdx.x==0){
-		for(int i=0;i<blockDim.x;i++){
-			rt = rt + r[i];
-			tt = tt + t[i];
-			bt = bt + b[i]; 
-		}
-		atomicAdd(result,rt);
-		atomicAdd(result+1,tt);
-		atomicAdd(result+2,bt);
-	}
-	*/
 }
 
 /*
@@ -146,21 +133,13 @@ int main(int argc, char *argv[]) {
   float c, c_c, c_s;
   // épaisseur de la plaque
   float h;
-  // distance parcourue par le neutron avant la collision
-  float L;
-  // direction du neutron (0 <= d <= PI)
-  float d;
-  // variable aléatoire uniforme
-  float u;
-  // position de la particule (0 <= x <= h)
-  float x;
   // nombre d'échantillons
   int n;
   // nombre de neutrons refléchis, absorbés et transmis
   int* result = (int *) calloc(3, sizeof(int)); //r, t, b
   // chronometrage
   double start, finish;
-  int i, j = 0; // compteurs 
+  int j = 0; // compteurs 
 
   //perf files
   FILE *perf = fopen("../perform.txt", "a+");
@@ -204,19 +183,25 @@ int main(int argc, char *argv[]) {
   int* result_gpu;
   int* c_abs;
   curandState* d_state;
+
+	start = my_gettimeofday();
   cudaMalloc(&d_state, nb_thread*nbBlocks.x*sizeof(curandState));
   cudaMalloc(&absorbed_gpu, n*sizeof(float));
-  cudaMemset(absorbed_gpu,0.0,n*sizeof(float));
+  
   cudaMalloc(&result_gpu, 3*sizeof(int));
   cudaMalloc(&c_abs, sizeof(int));
   cudaMemset(c_abs,0,sizeof(int));
-  start = my_gettimeofday();
-  cudaMemcpy(result_gpu, result, 3*sizeof(int),cudaMemcpyHostToDevice);
+	cudaMemset(absorbed_gpu,0.0,n*sizeof(float));
+  cudaMemset(result_gpu, 0.0, 3*sizeof(int));
+
   setup_kernel<<<nbBlocks, threadsParBloc >>>(d_state);
   neutron_calculus<<<nbBlocks, threadsParBloc >>>(d_state, c, c_c, h, absorbed_gpu, result_gpu, n, c_abs);
+
   cudaMemcpy(absorbed, absorbed_gpu, n*sizeof(float),cudaMemcpyDeviceToHost);
   cudaMemcpy(result, result_gpu, 3*sizeof(int),cudaMemcpyDeviceToHost);
   finish = my_gettimeofday();
+
+
   printf("\nTemps total de calcul: %.8g sec\n", finish - start);
   sprintf(str,"***************Cuda N:%d ***************\n\
 Nb_thread:%d , Nb_Blocs:%d \n\
@@ -226,40 +211,7 @@ Nb_thread:%d , Nb_Blocs:%d \n\
 fwrite(str,sizeof(char),strlen(str),perf);
 sprintf(str,"%d %.8g %d %d \n",n,finish-start,THREAD_PER_BLOCK,NB_BLOCKS);
 fwrite(str,sizeof(char),strlen(str),perf_gnuplot);
-  /*
-  // debut du chronometrage
-  start = my_gettimeofday();
-  
-  init_uniform_random_number();
-  for (i = 0; i < n; i++) {
-    d = 0.0;
-    x = 0.0;
 
-    while (1) {
-
-      u = uniform_random_number();
-      L = -(1 / c) * log(u);
-      x = x + L * cos(d);
-      if (x < 0) {
-	r++;
-	break;
-      } else if (x >= h) {
-	t++;
-	break;
-      } else if ((u = uniform_random_number()) < c_c / c) {
-	b++;
-	absorbed[j++] = x;
-	break;
-      } else {
-	u = uniform_random_number();
-	d = u * M_PI;
-      }
-    }
-  }
-
-  // fin du chronometrage
-  finish = my_gettimeofday();
-  */
   int r = result[0];
   int t = result[1];
   int b = result[2];
