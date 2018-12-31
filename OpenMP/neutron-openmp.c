@@ -32,10 +32,6 @@ Exemple d'execution : \n\
  */
 struct drand48_data alea_buffer;
 
-void init_uniform_random_number() {
-  srand48_r(0, &alea_buffer);
-}
-
 void init_uniform_random_number_thread(int thread) {
   srand48_r(thread, &alea_buffer);
 }

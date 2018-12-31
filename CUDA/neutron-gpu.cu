@@ -33,20 +33,6 @@ Exemple d'execution : \n\
     neutron-seq 1.0 500000000 0.5 0.5\n\
 ";
 
-/*
- * générateur uniforme de nombres aléatoires dans l'intervalle [0,1)
- */
-struct drand48_data alea_buffer;
-
-void init_uniform_random_number() {
-  srand48_r(0, &alea_buffer);
-}
-
-float uniform_random_number() {
-  double res = 0.0; 
-  drand48_r(&alea_buffer,&res);
-  return res;
-}
 
 /*
  * notre gettimeofday()
@@ -79,29 +65,28 @@ __global__ void neutron_calculus(curandState *state, float c, float c_c, float h
     float x;
     while(pos_Thread < n) {
 	      d = 0.0;
-              x = 0.0;
-              while (1) {
-	      //result[2]=5;
-	      u = curand_uniform (&state[id]);
-	      L = -(1 / c) * log(u);
-	      x = x + L * cos(d);
-	      if (x < 0) {
-		r[threadIdx.x] = r[threadIdx.x]+1;
-		break;
-	      } else if (x >= h) {
-		t[threadIdx.x] = t[threadIdx.x]+1;
-		break;
-	      } else if ((u = curand_uniform (&state[id])) < c_c / c) {
+        x = 0.0;
+        while (1) {
+				  u = curand_uniform (&state[id]);
+				  L = -(1 / c) * log(u);
+				  x = x + L * cos(d);
+				  if (x < 0) {
+						r[threadIdx.x] = r[threadIdx.x]+1;
+						break;
+								} else if (x >= h) {
+						t[threadIdx.x] = t[threadIdx.x]+1;
+						break;
+							} else if ((u = curand_uniform (&state[id])) < c_c / c) {
 		
-		b[threadIdx.x] = b[threadIdx.x]+1;
-		pos_ecrit = atomicAdd(c_abs, 1);
-		absorbed[pos_ecrit] = x;
+					b[threadIdx.x] = b[threadIdx.x]+1;
+					pos_ecrit = atomicAdd(c_abs, 1);
+					absorbed[pos_ecrit] = x;
 		
-		break;
-	      } else {
-		u = curand_uniform (&state[id]);
-		d = u * M_PI;
-	      }
+					break;
+							} else {
+					u = curand_uniform (&state[id]);
+					d = u * M_PI;
+							}
 	    }
 	pos_Thread = pos_Thread + gridDim.x*blockDim.x;
 	}
@@ -174,6 +159,7 @@ int main(int argc, char *argv[]) {
   printf("C_s : %g\n", c_s);
   printf("Thread per block : %d\n",THREAD_PER_BLOCK);
 
+	// INITIALISATION DES VARIABLES
   float *absorbed;
   absorbed = (float *) calloc(n, sizeof(float));
   int nb_thread = THREAD_PER_BLOCK;
@@ -184,21 +170,29 @@ int main(int argc, char *argv[]) {
   int* c_abs;
   curandState* d_state;
 
+	// DEBUT CHRONO
 	start = my_gettimeofday();
+
+	// SETUP GPU (MALLOC)
   cudaMalloc(&d_state, nb_thread*nbBlocks.x*sizeof(curandState));
   cudaMalloc(&absorbed_gpu, n*sizeof(float));
-  
   cudaMalloc(&result_gpu, 3*sizeof(int));
   cudaMalloc(&c_abs, sizeof(int));
+
+	// INIT VARIABLE GPU (COPY, CALLOC)
   cudaMemset(c_abs,0,sizeof(int));
 	cudaMemset(absorbed_gpu,0.0,n*sizeof(float));
   cudaMemset(result_gpu, 0.0, 3*sizeof(int));
 
-  setup_kernel<<<nbBlocks, threadsParBloc >>>(d_state);
-  neutron_calculus<<<nbBlocks, threadsParBloc >>>(d_state, c, c_c, h, absorbed_gpu, result_gpu, n, c_abs);
+	// CALCUL
+  setup_kernel<<<nbBlocks, threadsParBloc >>>(d_state); // RANDOM
+  neutron_calculus<<<nbBlocks, threadsParBloc >>>(d_state, c, c_c, h, absorbed_gpu, result_gpu, n, c_abs); //CALCUL PARALLELE
 
+	// RECUPERATION RESULT
   cudaMemcpy(absorbed, absorbed_gpu, n*sizeof(float),cudaMemcpyDeviceToHost);
   cudaMemcpy(result, result_gpu, 3*sizeof(int),cudaMemcpyDeviceToHost);
+
+	// FIN CHRONO
   finish = my_gettimeofday();
 
 
@@ -208,9 +202,9 @@ Nb_thread:%d , Nb_Blocs:%d \n\
 #Temps total de calcul : %.8g seconde(s)\n\n"
             ,n,THREAD_PER_BLOCK,NB_BLOCKS,finish-start);
 
-fwrite(str,sizeof(char),strlen(str),perf);
-sprintf(str,"%d %.8g %d %d \n",n,finish-start,THREAD_PER_BLOCK,NB_BLOCKS);
-fwrite(str,sizeof(char),strlen(str),perf_gnuplot);
+	fwrite(str,sizeof(char),strlen(str),perf);
+	sprintf(str,"%d %.8g %d %d \n",n,finish-start,THREAD_PER_BLOCK,NB_BLOCKS);
+	fwrite(str,sizeof(char),strlen(str),perf_gnuplot);
 
   int r = result[0];
   int t = result[1];

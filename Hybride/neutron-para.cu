@@ -33,21 +33,6 @@ Exemple d'execution : \n\
 ";
 
 /*
- * générateur uniforme de nombres aléatoires dans l'intervalle [0,1)
- */
-struct drand48_data alea_buffer;
-
-void init_uniform_random_number() {
-  srand48_r(0, &alea_buffer);
-}
-
-float uniform_random_number() {
-  double res = 0.0; 
-  drand48_r(&alea_buffer,&res);
-  return res;
-}
-
-/*
  * notre gettimeofday()
  */
 double my_gettimeofday(){
@@ -80,7 +65,6 @@ __global__ void neutron_calculus(curandState *state, float c, float c_c, float h
 	      d = 0.0;
               x = 0.0;
               while (1) {
-	      //result[2]=5;
 	      u = curand_uniform (&state[id]);
 	      L = -(1 / c) * log(u);
 	      x = x + L * cos(d);
@@ -135,7 +119,7 @@ int main(int argc, char *argv[]) {
   int* result = (int *) calloc(3, sizeof(int)); //r, t, b
   // chronometrage
   double start, finish;
-	// cariable threads openMP
+	// variable threads openMP
 	int tid, nthreads;
 
   int j = 0; // compteurs 
@@ -177,30 +161,43 @@ int main(int argc, char *argv[]) {
   int* c_abs;
   curandState* d_state;
   
+	// DEBUT CHRONO
   start = my_gettimeofday();
+
+	// MEMOIRE GPU RESERVATION 
   cudaMalloc(&d_state, nb_thread*nbBlocks.x*sizeof(curandState));
   cudaMalloc(&absorbed_gpu, n*sizeof(float));
   cudaMalloc(&result_gpu, 3*sizeof(int));
   cudaMalloc(&c_abs, sizeof(int));
+
+	// INITIALISATION VARIABLES LEGERES GPU
   cudaMemset(c_abs,0,sizeof(int));
   cudaMemset(result_gpu,0,3*sizeof(int));
 
+	// INITIALISATION VARIABLE LOURDE GPU EN PARALLELE
 	#pragma omp parallel
 	{
 		nthreads = omp_get_num_threads();
 		tid=omp_get_thread_num();
 		cudaMemset(absorbed_gpu+tid*n/nthreads,0.0,n*sizeof(float)/nthreads);
 	}
+
+	// CALCUL SUR GPU
   setup_kernel<<<nbBlocks, threadsParBloc >>>(d_state);
   neutron_calculus<<<nbBlocks, threadsParBloc >>>(d_state, c, c_c, h, absorbed_gpu, result_gpu, n, c_abs);
+
+	// RECUPERATION DES VARIABLES LOURDES GPU EN PARALLEL SUR CPU (n*8 octets, par ex 500000000*8 = 4 Go)
 	#pragma omp parallel
 	{
 		nthreads = omp_get_num_threads();
 		tid=omp_get_thread_num();
 		cudaMemcpy(absorbed+tid*n/nthreads, absorbed_gpu+tid*n/nthreads, n*sizeof(float)/nthreads,cudaMemcpyDeviceToHost);
 	}
-
+	
+	//RECUPERATION VARIABLES LEGERES (12 octets)
 	cudaMemcpy(result, result_gpu, 3*sizeof(int),cudaMemcpyDeviceToHost);
+
+	// FIN CHRONO
   finish = my_gettimeofday();
 
   printf("\nTemps total de calcul: %.8g sec\n", finish - start);
