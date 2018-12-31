@@ -18,6 +18,7 @@
 
 #define OUTPUT_FILE "/tmp/romhar/absorbed.dat"
 #define THREAD_PER_BLOCK 256 
+#define NB_BLOCKS 256
 
 char info[] = "\
 Usage:\n\
@@ -123,6 +124,11 @@ int main(int argc, char *argv[]) {
 	int tid, nthreads;
 
   int j = 0; // compteurs 
+  
+  //perf files
+  FILE *perf = fopen("../perform.txt", "a+");
+  FILE *perf_gnuplot = fopen("../perform_gnuplot.txt", "a+");
+  char str[512];
 
   if( argc == 1)
     fprintf( stderr, "%s\n", info);
@@ -200,7 +206,16 @@ int main(int argc, char *argv[]) {
 	// FIN CHRONO
   finish = my_gettimeofday();
 
-  printf("\nTemps total de calcul: %.8g sec\n", finish - start);
+  //printf("\nTemps total de calcul: %.8g sec\n", finish - start);
+  sprintf(str,"***************Hybride N:%d ***************\n\
+  Nb_thread:%d , Nb_Blocs:%d Omp_num_threads=%d \n\
+  #Temps total de calcul : %.8g seconde(s)\n\n"
+            ,n,THREAD_PER_BLOCK,NB_BLOCKS,nthreads,finish-start);
+
+	fwrite(str,sizeof(char),strlen(str),perf);
+	sprintf(str,"%d %.8g %d %d \n",n,finish-start,THREAD_PER_BLOCK,NB_BLOCKS);
+	fwrite(str,sizeof(char),strlen(str),perf_gnuplot);
+
 
   int r = result[0];
   int t = result[1];
