@@ -2,7 +2,7 @@ SRCS = neutron-openmp.c
 EXE_NAME = neutron-openmp
 
 CC = gcc
-CFLAGS = -Werror -Wall -O3 -ffast-math -mavx -ftree-vectorize -march=native -funroll-loops -g
+CFLAGS = -Werror -Wall -O3 -g
 LIBS = -lm -fopenmp
 
 all: ${EXE_NAME}
