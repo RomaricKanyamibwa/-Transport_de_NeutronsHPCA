@@ -186,6 +186,8 @@ int main(int argc, char *argv[]) {
 		nthreads = omp_get_num_threads();
 		tid=omp_get_thread_num();
 		cudaMemset(absorbed_gpu+tid*n/nthreads,0.0,n*sizeof(float)/nthreads);
+        if(tid==0)
+            printf("Number of Threads : %d\n",nthreads );
 	}
 
 	// CALCUL SUR GPU
