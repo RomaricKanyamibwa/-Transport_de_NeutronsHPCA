@@ -108,9 +108,6 @@ __global__ void neutron_calculus(curandState *state, float c, float c_c, float h
 	}
 }
 
-/*
- * main()
- */
 
 int main(int argc, char *argv[]) {
   // La distance moyenne entre les interactions neutron/atome est 1/c. 
@@ -130,7 +127,6 @@ int main(int argc, char *argv[]) {
   FILE *perf = fopen("../perform.txt", "a+");
   FILE *perf_gnuplot = fopen("../perform_gnuplot.txt", "a+");
   char str[512];
-  //char tmp[128];
 
   if( argc == 1)
     fprintf( stderr, "%s\n", info);
@@ -196,10 +192,10 @@ int main(int argc, char *argv[]) {
   finish = my_gettimeofday();
 
 
-  printf("\nTemps total de calcul: %.8g sec\n", finish - start);
+  //printf("\nTemps total de calcul: %.8g sec\n", finish - start);
   sprintf(str,"***************Cuda N:%d ***************\n\
-Nb_thread:%d , Nb_Blocs:%d \n\
-#Temps total de calcul : %.8g seconde(s)\n\n"
+  Nb_thread:%d , Nb_Blocs:%d \n\
+  #Temps total de calcul : %.8g seconde(s)\n\n"
             ,n,THREAD_PER_BLOCK,NB_BLOCKS,finish-start);
 
 	fwrite(str,sizeof(char),strlen(str),perf);
