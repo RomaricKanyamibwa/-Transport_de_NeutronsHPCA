@@ -179,19 +179,30 @@ int main(int argc, char *argv[]) {
   cudaMalloc(&result_gpu, 3*sizeof(int));
   cudaMalloc(&c_abs, sizeof(int));
 
+finish = my_gettimeofday();
+printf("\n temps alloc gpu : %.8g sec\n", finish-start);
+	start = my_gettimeofday();
+
 	// INIT VARIABLE GPU (COPY, CALLOC)
   cudaMemset(c_abs,0,sizeof(int));
 	cudaMemset(absorbed_gpu,0.0,n*sizeof(float));
   cudaMemset(result_gpu, 0.0, 3*sizeof(int));
+finish = my_gettimeofday();
+printf("\n temps init gpu : %.8g sec\n", finish-start);
+	start = my_gettimeofday();
 
 	// CALCUL
   setup_kernel<<<nbBlocks, threadsParBloc >>>(d_state); // RANDOM
   neutron_calculus<<<nbBlocks, threadsParBloc >>>(d_state, c, c_c, h, absorbed_gpu, result_gpu, n, c_abs); //CALCUL PARALLELE
 
+	start = my_gettimeofday();
+
 	// RECUPERATION RESULT
   cudaMemcpy(absorbed, absorbed_gpu, n*sizeof(float),cudaMemcpyDeviceToHost);
   cudaMemcpy(result, result_gpu, 3*sizeof(int),cudaMemcpyDeviceToHost);
 
+finish = my_gettimeofday();
+printf("\n temps recup result : %.8g sec\n", finish-start);
 	// FIN CHRONO
   finish = my_gettimeofday();
   float* var_test_0 = (float*)calloc(500000000, sizeof(float));
@@ -204,21 +215,25 @@ int main(int argc, char *argv[]) {
 
   start = my_gettimeofday();
   cudaMemcpy(var_cuda0,var_test_0,500000000*sizeof(float),cudaMemcpyHostToDevice);
+  //cudaDeviceSynchronize();
   finish = my_gettimeofday();
   printf("\n Temps pour envoyer des 0 : %.8g sec\n", finish - start);
 
   start = my_gettimeofday();
   cudaMemcpy(var_cuda1,var_test_1,500000000*sizeof(float),cudaMemcpyHostToDevice);
+  //cudaDeviceSynchronize();
   finish = my_gettimeofday();  
   printf("\n Temps pour envoyer des rand : %.8g sec\n", finish - start);
 
   start = my_gettimeofday();
   cudaMemcpy(var_test_0,var_cuda0,500000000*sizeof(float),cudaMemcpyDeviceToHost);
+  //cudaDeviceSynchronize();
   finish = my_gettimeofday();
   printf("\n Temps pour recevoir des 0 : %.8g sec\n", finish - start);
 
   start = my_gettimeofday();
   cudaMemcpy(var_test_1, var_cuda1,500000000*sizeof(float),cudaMemcpyDeviceToHost);
+  //cudaDeviceSynchronize();
   finish = my_gettimeofday();
   printf("\n Temps pour recevoir des rand : %.8g sec\n", finish - start);
 
