@@ -199,7 +199,8 @@ int main(int argc, char *argv[]) {
   float* var_cuda0, *var_cuda1;
   cudaMalloc((void**)&var_cuda0,500000000*sizeof(float));
   cudaMalloc((void**)&var_cuda1, 500000000*sizeof(float));
-  for(int i=0;i<500000000;i++)	var_test_1[i]=1.2;
+  srand((unsigned int)time(NULL));
+  for(int i=0;i<500000000;i++)	var_test_1[i]=(float)rand()/(float)(RAND_MAX);
 
   start = my_gettimeofday();
   cudaMemcpy(var_cuda0,var_test_0,500000000*sizeof(float),cudaMemcpyHostToDevice);
@@ -209,7 +210,7 @@ int main(int argc, char *argv[]) {
   start = my_gettimeofday();
   cudaMemcpy(var_cuda1,var_test_1,500000000*sizeof(float),cudaMemcpyHostToDevice);
   finish = my_gettimeofday();  
-  printf("\n Temps pour envoyer des 1.2 : %.8g sec\n", finish - start);
+  printf("\n Temps pour envoyer des rand : %.8g sec\n", finish - start);
 
   start = my_gettimeofday();
   cudaMemcpy(var_test_0,var_cuda0,500000000*sizeof(float),cudaMemcpyDeviceToHost);
@@ -219,7 +220,7 @@ int main(int argc, char *argv[]) {
   start = my_gettimeofday();
   cudaMemcpy(var_test_1, var_cuda1,500000000*sizeof(float),cudaMemcpyDeviceToHost);
   finish = my_gettimeofday();
-  printf("\n Temps pour recevoir des 1.2 : %.8g sec\n", finish - start);
+  printf("\n Temps pour recevoir des rand : %.8g sec\n", finish - start);
 
   printf("\nTemps total de calcul: %.8g sec\n", finish - start);
   sprintf(str,"***************Cuda N:%d ***************\n\

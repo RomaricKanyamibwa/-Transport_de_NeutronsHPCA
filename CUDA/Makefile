@@ -1,5 +1,5 @@
-SRCS = neutron-gpu.cu
-EXE_NAME = neutron-gpu
+SRCS = test.cu
+EXE_NAME = test
 LIB=-lm -L/usr/local/cuda/lib64/ -lcuda -lcudart -lcurand
 NVCC=nvcc 
 
