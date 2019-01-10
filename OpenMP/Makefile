@@ -1,5 +1,6 @@
 SRCS = neutron-openmp.c
 EXE_NAME = neutron-openmp
+NUM_PROCS = $(shell nproc)
 
 CC = gcc
 CFLAGS = -Werror -Wall -O3 -g
@@ -12,3 +13,7 @@ all: ${EXE_NAME}
 
 clean:
 	rm -f ${EXE_NAME} *.o *~
+
+exec:all
+	export OMP_NUM_THREADS=$(NUM_PROCS)
+	./$(EXE_NAME) 

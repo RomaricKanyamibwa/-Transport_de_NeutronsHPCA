@@ -1,5 +1,5 @@
-SRCS = test.cu
-EXE_NAME = test
+SRCS = neutron-gpu.cu
+EXE_NAME = neutron-gpu
 LIB=-lm -L/usr/local/cuda/lib64/ -lcuda -lcudart -lcurand
 NVCC=nvcc 
 
@@ -18,6 +18,7 @@ all: ${EXE_NAME}
 clean:
 	rm -f ${EXE_NAME} *.o *~
 
-
+exec:all
+	./$(EXE_NAME)
 
 

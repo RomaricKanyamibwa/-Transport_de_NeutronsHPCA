@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 
   // valeurs par defaut
   h = 1.0;
-  n = 50000;
+  n = 500000000;
   c_c = 0.5;
   c_s = 0.5;
 
@@ -155,6 +155,8 @@ int main(int argc, char *argv[]) {
   printf("Nombre d'échantillons  : %d\n", n);
   printf("C_c : %g\n", c_c);
   printf("C_s : %g\n", c_s);
+  printf("Thread per block : %d\n",THREAD_PER_BLOCK);
+  printf("Number of block : %d\n",NB_BLOCKS);
 
 
   float *absorbed;

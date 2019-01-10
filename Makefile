@@ -22,6 +22,11 @@ clean:
 	cd $(CUDA) && $(MAKE) clean
 	cd $(OpenMP) && $(MAKE) clean
 	cd $(Hybride) && $(MAKE) clean
-	
+
 exec:all
-	sh benchmarking.sh
+	cd $(CUDA) && $(MAKE) exec
+	cd $(OpenMP) && $(MAKE) exec
+	cd $(Hybride) && $(MAKE) exec
+
+bench:all
+	sh bench.sh

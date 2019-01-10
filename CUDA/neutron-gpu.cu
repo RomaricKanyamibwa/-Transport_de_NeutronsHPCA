@@ -154,6 +154,7 @@ int main(int argc, char *argv[]) {
   printf("C_c : %g\n", c_c);
   printf("C_s : %g\n", c_s);
   printf("Thread per block : %d\n",THREAD_PER_BLOCK);
+  printf("Number of block : %d\n",NB_BLOCKS);
 
 	// INITIALISATION DES VARIABLES
   float *absorbed;

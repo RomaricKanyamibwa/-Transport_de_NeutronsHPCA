@@ -1,0 +1,261 @@
+
+
+----------------------Test 1 for N=5000000-----------------------
+
+
+
+************************SEQ************************
+
+***************Seq N:5000000 ***************
+  #Temps total de calcul : 0.46415615 seconde(s)
+
+
+************************OpenMP************************
+
+***************OpenMP N:5000000 Threads:2***************
+  #Temps total de calcul : 0.81485796 seconde(s)
+
+***************OpenMP N:5000000 Threads:4***************
+  #Temps total de calcul : 1.309942 seconde(s)
+
+***************OpenMP N:5000000 Threads:6***************
+  #Temps total de calcul : 1.2269092 seconde(s)
+
+***************OpenMP N:5000000 Threads:8***************
+  #Temps total de calcul : 1.300354 seconde(s)
+
+***************OpenMP N:5000000 Threads:16***************
+  #Temps total de calcul : 1.4451151 seconde(s)
+
+***************OpenMP N:5000000 Threads:32***************
+  #Temps total de calcul : 2.841054 seconde(s)
+
+***************OpenMP N:5000000 Threads:42***************
+  #Temps total de calcul : 3.748621 seconde(s)
+
+***************OpenMP N:5000000 Threads:64***************
+  #Temps total de calcul : 4.264734 seconde(s)
+
+***************OpenMP N:5000000 Threads:88***************
+  #Temps total de calcul : 4.487323 seconde(s)
+
+
+************************CUDA************************
+
+***************Cuda N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 
+  #Temps total de calcul : 0.62290192 seconde(s)
+
+
+************************Hybride************************
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=2 
+  #Temps total de calcul : 0.64585996 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=4 
+  #Temps total de calcul : 0.65332603 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=6 
+  #Temps total de calcul : 0.66174793 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=8 
+  #Temps total de calcul : 0.6332171 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=16 
+  #Temps total de calcul : 0.67107177 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=32 
+  #Temps total de calcul : 0.73377109 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=42 
+  #Temps total de calcul : 0.69553304 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=64 
+  #Temps total de calcul : 0.78548694 seconde(s)
+
+***************Hybride N:5000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=88 
+  #Temps total de calcul : 0.79232979 seconde(s)
+
+
+
+----------------------Test 2 for N=50000000-----------------------
+
+
+
+************************SEQ************************
+
+***************Seq N:50000000 ***************
+  #Temps total de calcul : 4.617136 seconde(s)
+
+
+************************OpenMP************************
+
+***************OpenMP N:50000000 Threads:2***************
+  #Temps total de calcul : 8.3558609 seconde(s)
+
+***************OpenMP N:50000000 Threads:4***************
+  #Temps total de calcul : 17.239718 seconde(s)
+
+***************OpenMP N:50000000 Threads:6***************
+  #Temps total de calcul : 17.878507 seconde(s)
+
+***************OpenMP N:50000000 Threads:8***************
+  #Temps total de calcul : 16.816758 seconde(s)
+
+***************OpenMP N:50000000 Threads:16***************
+  #Temps total de calcul : 19.04074 seconde(s)
+
+***************OpenMP N:50000000 Threads:32***************
+  #Temps total de calcul : 29.671552 seconde(s)
+
+***************OpenMP N:50000000 Threads:42***************
+  #Temps total de calcul : 38.120364 seconde(s)
+
+***************OpenMP N:50000000 Threads:64***************
+  #Temps total de calcul : 44.090643 seconde(s)
+
+***************OpenMP N:50000000 Threads:88***************
+  #Temps total de calcul : 48.530925 seconde(s)
+
+
+************************CUDA************************
+
+***************Cuda N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 
+  #Temps total de calcul : 0.80385494 seconde(s)
+
+
+************************Hybride************************
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=2 
+  #Temps total de calcul : 0.79156303 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=4 
+  #Temps total de calcul : 0.81243706 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=6 
+  #Temps total de calcul : 0.79982901 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=8 
+  #Temps total de calcul : 0.80461097 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=16 
+  #Temps total de calcul : 0.82553291 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=32 
+  #Temps total de calcul : 0.82915998 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=42 
+  #Temps total de calcul : 0.88151884 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=64 
+  #Temps total de calcul : 0.81695199 seconde(s)
+
+***************Hybride N:50000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=88 
+  #Temps total de calcul : 0.82529688 seconde(s)
+
+
+
+----------------------Test 3 for N=500000000-----------------------
+
+
+
+************************SEQ************************
+
+***************Seq N:500000000 ***************
+  #Temps total de calcul : 47.479652 seconde(s)
+
+
+************************OpenMP************************
+
+***************OpenMP N:500000000 Threads:2***************
+  #Temps total de calcul : 112.39769 seconde(s)
+
+***************OpenMP N:500000000 Threads:4***************
+  #Temps total de calcul : 174.92776 seconde(s)
+
+***************OpenMP N:500000000 Threads:6***************
+  #Temps total de calcul : 181.2019 seconde(s)
+
+***************OpenMP N:500000000 Threads:8***************
+  #Temps total de calcul : 180.96811 seconde(s)
+
+***************OpenMP N:500000000 Threads:16***************
+  #Temps total de calcul : 203.85804 seconde(s)
+
+***************OpenMP N:500000000 Threads:32***************
+  #Temps total de calcul : 325.30239 seconde(s)
+
+***************OpenMP N:500000000 Threads:42***************
+  #Temps total de calcul : 367.124 seconde(s)
+
+***************OpenMP N:500000000 Threads:64***************
+  #Temps total de calcul : 435.70312 seconde(s)
+
+***************OpenMP N:500000000 Threads:88***************
+  #Temps total de calcul : 469.02982 seconde(s)
+
+
+************************CUDA************************
+
+***************Cuda N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 
+  #Temps total de calcul : 2.115767 seconde(s)
+
+
+************************Hybride************************
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=2 
+  #Temps total de calcul : 2.164721 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=4 
+  #Temps total de calcul : 2.1433959 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=6 
+  #Temps total de calcul : 1.967926 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=8 
+  #Temps total de calcul : 1.6865311 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=16 
+  #Temps total de calcul : 1.4671841 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=32 
+  #Temps total de calcul : 1.3699031 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=42 
+  #Temps total de calcul : 1.2635372 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=64 
+  #Temps total de calcul : 1.2560151 seconde(s)
+
+***************Hybride N:500000000 ***************
+  Nb_thread:256 , Nb_Blocs:256 Omp_num_threads=88 
+  #Temps total de calcul : 1.228663 seconde(s)
+
